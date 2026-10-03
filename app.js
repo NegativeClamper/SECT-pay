@@ -157,21 +157,17 @@ function createQRCard(index, chunk) {
     ${chunk.paid ? paidOverlayHTML(index, chunk.amount) : ''}
   `;
 
-  // Render QR code into the wrap using qrcodejs
+  // Render QR code as an image via qrserver.com API
   const wrap = card.querySelector(`#qr-wrap-${index}`);
-  try {
-    new QRCode(wrap, {
-      text: upiUrl,
-      width: 180,
-      height: 180,
-      colorDark:  '#000000',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M,
-    });
-  } catch (err) {
-    wrap.innerHTML = `<div style="padding:16px;font-size:0.7rem;word-break:break-all;color:#333;background:white;width:180px;height:180px;display:flex;align-items:center;">${upiUrl}</div>`;
-    console.warn('QR generation error:', err);
-  }
+  const encodedUrl = encodeURIComponent(upiUrl);
+  const qrImg = document.createElement('img');
+  qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=4&data=${encodedUrl}`;
+  qrImg.alt = `UPI QR ${index + 1}`;
+  qrImg.style.cssText = 'width:180px;height:180px;display:block;';
+  qrImg.onerror = () => {
+    wrap.innerHTML = `<div style="padding:8px;font-size:0.65rem;word-break:break-all;color:#333;text-align:center;">QR unavailable<br>${upiUrl}</div>`;
+  };
+  wrap.appendChild(qrImg);
 
   return card;
 }
