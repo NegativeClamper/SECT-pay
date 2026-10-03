@@ -266,14 +266,20 @@ input[type=number] { -moz-appearance: textfield; }
 
 /* QR grid */
 .qr-grid-container { flex: 1; padding: 24px; overflow-y: auto; }
+/* QR grid - centered flexbox */
 .qr-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px; max-width: 1200px; margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-content: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* QR Card */
 .qr-card {
+  width: 260px;
   background: var(--surface); border: 1px solid var(--border2);
   border-radius: var(--radius-md); overflow: hidden;
   cursor: pointer; position: relative;

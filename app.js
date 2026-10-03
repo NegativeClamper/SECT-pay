@@ -105,23 +105,23 @@ async function generateQRs() {
   document.getElementById('summary-remaining').textContent = fmt(total);
   document.getElementById('completion-overlay').style.display = 'none';
 
-  // Build grid first, then slide (so QRs start rendering before user sees them)
-  await buildQRGrid();
+  // Build grid then slide
+  buildQRGrid();
   switchScreen('qr');
 }
 
 // ── Build QR grid ─────────────────────────────────────────
-async function buildQRGrid() {
+function buildQRGrid() {
   const grid = document.getElementById('qr-grid');
   grid.innerHTML = '';
   for (let i = 0; i < state.chunks.length; i++) {
-    const card = await createQRCard(i, state.chunks[i]);
+    const card = createQRCard(i, state.chunks[i]);
     grid.appendChild(card);
   }
 }
 
 // ── Create one QR card ────────────────────────────────────
-async function createQRCard(index, chunk) {
+function createQRCard(index, chunk) {
   const card = document.createElement('div');
   card.className = 'qr-card' + (chunk.paid ? ' paid' : '');
   card.id = `qr-card-${index}`;
@@ -144,24 +144,22 @@ async function createQRCard(index, chunk) {
     ${chunk.paid ? paidOverlayHTML(index, chunk.amount) : ''}
   `;
 
-  // Generate QR as base64 data URL using qrcode library
+  // Generate QR using qrcode-generator (synchronous, no CDN issues)
   const wrap = card.querySelector(`#qr-wrap-${index}`);
   try {
-    const dataUrl = await QRCode.toDataURL(upiUrl, {
-      width: 200,
-      margin: 2,
-      color: { dark: '#000000', light: '#ffffff' },
-      errorCorrectionLevel: 'M',
-    });
+    const qr = qrcode(0, 'M');   // 0 = auto type number, M = medium error correction
+    qr.addData(upiUrl);
+    qr.make();
+    const dataUrl = qr.createDataURL(4, 0);  // 4px per cell, 0 margin (we add padding in CSS)
     const img = document.createElement('img');
     img.src   = dataUrl;
-    img.alt   = `UPI QR code for payment ${index + 1}`;
-    img.style.cssText = 'display:block;width:180px;height:180px;';
+    img.alt   = 'UPI QR ' + (index + 1);
+    img.style.cssText = 'display:block;width:180px;height:180px;image-rendering:pixelated;';
     wrap.innerHTML = '';
     wrap.appendChild(img);
   } catch (err) {
-    console.error('QR error:', err);
-    wrap.innerHTML = `<div style="padding:12px;font-size:0.7rem;color:#444;word-break:break-all;">${upiUrl}</div>`;
+    console.error('QR generation failed:', err);
+    wrap.innerHTML = `<div style="padding:12px;font-size:0.65rem;color:#555;text-align:center;word-break:break-all;">[QR Error]<br>${err.message}</div>`;
   }
 
   return card;
