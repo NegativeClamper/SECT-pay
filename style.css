@@ -477,6 +477,13 @@ input[type=number] { -moz-appearance: textfield; }
   width: 180px !important;
   height: 180px !important;
 }
+/* qrcodejs wraps output in a div — flatten it */
+.qr-image-wrap > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
 
 /* Card footer */
 .qr-card-footer {

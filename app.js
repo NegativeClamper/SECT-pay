@@ -115,23 +115,23 @@ async function generateQRs() {
   document.getElementById('completion-overlay').style.display = 'none';
 
   // Build QR grid
-  await buildQRGrid();
+  buildQRGrid();
 }
 
 // ─── Build QR Grid ────────────────────────────────────────
-async function buildQRGrid() {
+function buildQRGrid() {
   const grid = document.getElementById('qr-grid');
   grid.innerHTML = '';
 
   for (let i = 0; i < state.chunks.length; i++) {
     const chunk = state.chunks[i];
-    const card  = await createQRCard(i, chunk);
+    const card  = createQRCard(i, chunk);
     grid.appendChild(card);
   }
 }
 
 // ─── Create a single QR Card ──────────────────────────────
-async function createQRCard(index, chunk) {
+function createQRCard(index, chunk) {
   const card = document.createElement('div');
   card.className = 'qr-card' + (chunk.paid ? ' paid' : '');
   card.id = `qr-card-${index}`;
@@ -157,19 +157,18 @@ async function createQRCard(index, chunk) {
     ${chunk.paid ? paidOverlayHTML(index, chunk.amount) : ''}
   `;
 
-  // Render QR code into the wrap
+  // Render QR code into the wrap using qrcodejs
   const wrap = card.querySelector(`#qr-wrap-${index}`);
   try {
-    const canvas = document.createElement('canvas');
-    await QRCode.toCanvas(canvas, upiUrl, {
+    new QRCode(wrap, {
+      text: upiUrl,
       width: 180,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' },
-      errorCorrectionLevel: 'M',
+      height: 180,
+      colorDark:  '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
     });
-    wrap.appendChild(canvas);
   } catch (err) {
-    // Fallback: show UPI URL as text
     wrap.innerHTML = `<div style="padding:16px;font-size:0.7rem;word-break:break-all;color:#333;background:white;width:180px;height:180px;display:flex;align-items:center;">${upiUrl}</div>`;
     console.warn('QR generation error:', err);
   }
