@@ -3,189 +3,175 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SECT Pay â€” Smart UPI Payment Splitter</title>
-  <meta name="description" content="SECT Pay splits large UPI payments into chunks under â‚¹2,000 to help vendors avoid MDR charges. Fast, free, and works with any UPI app." />
+  <title>SECT Pay - Smart UPI Payment Splitter</title>
+  <meta name="description" content="SECT Pay splits large UPI payments into chunks under Rs.2000 to help vendors avoid MDR charges." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ===== SCREEN 1: INPUT ===== -->
-  <div id="screen-input" class="screen active">
-    <div class="bg-orbs">
-      <div class="orb orb-1"></div>
-      <div class="orb orb-2"></div>
-      <div class="orb orb-3"></div>
+  <!-- Slide container: both screens sit side-by-side, we translateX to switch -->
+  <div class="screens-wrap" id="screens-wrap">
+
+    <!-- ===== SCREEN 1: INPUT ===== -->
+    <div id="screen-input" class="screen screen-input">
+      <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+      </div>
+
+      <div class="input-container">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="12" fill="url(#brandGrad)"/>
+              <path d="M12 20h6l3-8 4 16 3-8h6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="brandGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#6366f1"/>
+                  <stop offset="1" stop-color="#a855f7"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">SECT Pay</span>
+            <span class="brand-tagline">Smart UPI Splitter</span>
+          </div>
+        </div>
+
+        <div class="hero-text">
+          <h1>Split large payments,<br /><span class="gradient-text">skip the MDR charge.</span></h1>
+          <p class="hero-sub">Payments above Rs.2,000 attract 0.4% MDR from Oct 15, 2026. Split them into Rs.1,999 chunks &mdash; zero charges, zero hassle.</p>
+        </div>
+
+        <div class="card input-card">
+          <div class="mdr-badge">
+            <span class="badge-dot"></span>
+            MDR-Free Mode Active
+          </div>
+
+          <div class="form-group">
+            <label for="upi-id">Your UPI ID</label>
+            <div class="input-wrap">
+              <span class="input-icon">@</span>
+              <input type="text" id="upi-id" placeholder="yourname@upi" autocomplete="off" spellcheck="false" />
+            </div>
+            <span class="field-hint">e.g. shopname@okaxis, 9876543210@paytm</span>
+          </div>
+
+          <div class="form-group">
+            <label for="total-amount">Total Bill Amount</label>
+            <div class="input-wrap">
+              <span class="input-icon rupee-icon">&#8377;</span>
+              <input type="number" id="total-amount" placeholder="0.00" min="1" step="0.01" />
+            </div>
+            <span class="field-hint" id="split-preview"></span>
+          </div>
+
+          <div class="split-info" id="split-info" style="display:none;">
+            <div class="split-info-row">
+              <div class="split-stat">
+                <span class="stat-label">Total</span>
+                <span class="stat-value" id="stat-total">-</span>
+              </div>
+              <div class="split-divider"></div>
+              <div class="split-stat">
+                <span class="stat-label">Split Into</span>
+                <span class="stat-value" id="stat-count">-</span>
+              </div>
+              <div class="split-divider"></div>
+              <div class="split-stat">
+                <span class="stat-label">MDR Saved</span>
+                <span class="stat-value saved" id="stat-saved">-</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-generate" id="btn-generate" onclick="generateQRs()">
+            <span class="btn-text">Generate Payment QRs</span>
+            <span class="btn-arrow">&#8594;</span>
+          </button>
+
+          <p class="disclaimer">
+            &#9432; Payments split into Rs.1,999 chunks. Works with PhonePe, Google Pay, Paytm &amp; all UPI apps.
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="input-container">
-      <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="40" height="40" rx="12" fill="url(#brandGrad)"/>
-            <path d="M12 20h6l3-8 4 16 3-8h6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="brandGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#6366f1"/>
-                <stop offset="1" stop-color="#a855f7"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">SECT Pay</span>
-          <span class="brand-tagline">Smart UPI Splitter</span>
-        </div>
-      </div>
-
-      <div class="hero-text">
-        <h1>Split large payments,<br /><span class="gradient-text">skip the MDR charge.</span></h1>
-        <p class="hero-sub">Payments above â‚¹2,000 attract 0.4% MDR from Oct 15, 2026. Split them into â‚¹1,999 chunks â€” zero charges, zero hassle.</p>
-      </div>
-
-      <div class="card input-card">
-        <div class="mdr-badge">
-          <span class="badge-dot"></span>
-          MDR-Free Mode Active
-        </div>
-
-        <div class="form-group">
-          <label for="upi-id">Your UPI ID</label>
-          <div class="input-wrap">
-            <span class="input-icon">
-              <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M7 10h6M10 7v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </span>
-            <input
-              type="text"
-              id="upi-id"
-              placeholder="yourname@upi"
-              autocomplete="off"
-              spellcheck="false"
-            />
-          </div>
-          <span class="field-hint">e.g. shopname@okaxis, 9876543210@paytm</span>
-        </div>
-
-        <div class="form-group">
-          <label for="total-amount">Total Bill Amount</label>
-          <div class="input-wrap">
-            <span class="input-icon rupee-icon">â‚¹</span>
-            <input
-              type="number"
-              id="total-amount"
-              placeholder="0.00"
-              min="1"
-              step="0.01"
-            />
-          </div>
-          <span class="field-hint" id="split-preview"></span>
-        </div>
-
-        <div class="split-info" id="split-info" style="display:none;">
-          <div class="split-info-row">
-            <div class="split-stat">
-              <span class="stat-label">Total Amount</span>
-              <span class="stat-value" id="stat-total">â€”</span>
-            </div>
-            <div class="split-divider"></div>
-            <div class="split-stat">
-              <span class="stat-label">Split Into</span>
-              <span class="stat-value" id="stat-count">â€”</span>
-            </div>
-            <div class="split-divider"></div>
-            <div class="split-stat">
-              <span class="stat-label">MDR Saved</span>
-              <span class="stat-value saved" id="stat-saved">â€”</span>
-            </div>
-          </div>
-        </div>
-
-        <button class="btn-generate" id="btn-generate" onclick="generateQRs()">
-          <span class="btn-text">Generate Payment QRs</span>
-          <span class="btn-arrow">â†’</span>
+    <!-- ===== SCREEN 2: QR GRID ===== -->
+    <div id="screen-qr" class="screen screen-qr">
+      <header class="qr-header">
+        <button class="back-btn" onclick="goBack()">
+          <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back
         </button>
-
-        <p class="disclaimer">
-          <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          Payments split into â‚¹1,999 chunks. Works with PhonePe, Google Pay, Paytm &amp; all UPI apps.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== SCREEN 2: QR GRID ===== -->
-  <div id="screen-qr" class="screen">
-    <header class="qr-header">
-      <button class="back-btn" onclick="goBack()">
-        <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Back
-      </button>
-      <div class="header-brand">
-        <span class="header-brand-name">SECT Pay</span>
-      </div>
-      <div class="header-actions">
-        <button class="btn-reset-all" onclick="resetAllPayments()" title="Reset all payments">
-          <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M4 10a6 6 0 1 1 1.5 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 14V10H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Reset
-        </button>
-      </div>
-    </header>
-
-    <div class="qr-summary-bar">
-      <div class="summary-item">
-        <span class="summary-label">Bill Total</span>
-        <span class="summary-value" id="summary-total">â€”</span>
-      </div>
-      <div class="summary-sep">â€¢</div>
-      <div class="summary-item">
-        <span class="summary-label">Payments</span>
-        <span class="summary-value" id="summary-count">â€”</span>
-      </div>
-      <div class="summary-sep">â€¢</div>
-      <div class="summary-item">
-        <span class="summary-label">Collected</span>
-        <span class="summary-value green" id="summary-paid">â‚¹0</span>
-      </div>
-      <div class="summary-sep">â€¢</div>
-      <div class="summary-item">
-        <span class="summary-label">Remaining</span>
-        <span class="summary-value orange" id="summary-remaining">â€”</span>
-      </div>
-    </div>
-
-    <div class="qr-grid-container">
-      <div class="qr-grid" id="qr-grid">
-        <!-- QR cards injected by JS -->
-      </div>
-    </div>
-
-    <div class="completion-overlay" id="completion-overlay" style="display:none;">
-      <div class="completion-card">
-        <div class="completion-icon">
-          <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="30" cy="30" r="28" fill="url(#successGrad)" opacity="0.15"/>
-            <circle cx="30" cy="30" r="28" stroke="url(#successGrad)" stroke-width="2"/>
-            <path d="M18 30l9 9 15-18" stroke="url(#successGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="successGrad" x1="0" y1="0" x2="60" y2="60">
-                <stop stop-color="#22c55e"/>
-                <stop offset="1" stop-color="#16a34a"/>
-              </linearGradient>
-            </defs>
-          </svg>
+        <div class="header-brand">
+          <span class="header-brand-name">SECT Pay</span>
         </div>
-        <h2>Payment Complete!</h2>
-        <p id="completion-summary">All payments received successfully.</p>
-        <div class="completion-actions">
+        <div class="header-actions">
+          <button class="btn-reset-all" onclick="resetAllPayments()">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M4 10a6 6 0 1 1 1.5 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 14V10H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Reset
+          </button>
+        </div>
+      </header>
+
+      <div class="qr-summary-bar">
+        <div class="summary-item">
+          <span class="summary-label">Bill Total</span>
+          <span class="summary-value" id="summary-total">-</span>
+        </div>
+        <div class="summary-sep">|</div>
+        <div class="summary-item">
+          <span class="summary-label">Payments</span>
+          <span class="summary-value" id="summary-count">-</span>
+        </div>
+        <div class="summary-sep">|</div>
+        <div class="summary-item">
+          <span class="summary-label">Collected</span>
+          <span class="summary-value green" id="summary-paid">Rs.0</span>
+        </div>
+        <div class="summary-sep">|</div>
+        <div class="summary-item">
+          <span class="summary-label">Remaining</span>
+          <span class="summary-value orange" id="summary-remaining">-</span>
+        </div>
+      </div>
+
+      <div class="qr-grid-container">
+        <div class="qr-grid" id="qr-grid"></div>
+      </div>
+
+      <div class="completion-overlay" id="completion-overlay" style="display:none;">
+        <div class="completion-card">
+          <div class="completion-icon">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="30" r="28" fill="url(#successGrad)" opacity="0.15"/>
+              <circle cx="30" cy="30" r="28" stroke="url(#successGrad)" stroke-width="2"/>
+              <path d="M18 30l9 9 15-18" stroke="url(#successGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="successGrad" x1="0" y1="0" x2="60" y2="60">
+                  <stop stop-color="#22c55e"/>
+                  <stop offset="1" stop-color="#16a34a"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h2>Payment Complete!</h2>
+          <p id="completion-summary">All payments received successfully.</p>
           <button class="btn-new-payment" onclick="startNew()">New Payment</button>
         </div>
       </div>
     </div>
-  </div>
+
+  </div><!-- /screens-wrap -->
 
   <script src="app.js"></script>
 </body>
 </html>
-
